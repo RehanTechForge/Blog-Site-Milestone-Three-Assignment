@@ -22,7 +22,7 @@ export default function ModernNewsSection() {
       </h2>
 
       <Tabs defaultValue="All" className="mb-8">
-        <TabsList>
+        <TabsList className="flex-col h-48 sm:h-9 text-center sm:flex-row">
           {uniqueCategories.map((category) => (
             <TabsTrigger key={category} value={category}>
               {category}
