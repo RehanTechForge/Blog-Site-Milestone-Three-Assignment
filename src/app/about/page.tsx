@@ -34,9 +34,8 @@ export default function AboutPage() {
               <Image
                 src="/about.webp"
                 alt="Makeup products and brushes"
-                layout="fill"
-                objectFit="cover"
-                className="rounded-t-lg"
+                fill
+                className="rounded-t-lg object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-t-lg"></div>
               <div className="absolute bottom-4 left-4 right-4 text-white">

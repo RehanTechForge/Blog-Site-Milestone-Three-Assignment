@@ -12,7 +12,10 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import { getBlogData } from "@/lib/getBlogData";
-const Page = async ({ params }: any) => {
+interface ParamsInterFace {
+  slug: string;
+}
+const Page = async ({ params }: { params: ParamsInterFace }) => {
   // Construct the file path based on the slug
   const filepath = `src/content/${params.slug}.md`;
 

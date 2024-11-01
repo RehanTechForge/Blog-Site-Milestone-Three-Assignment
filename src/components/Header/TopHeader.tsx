@@ -4,11 +4,10 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { ChevronDown, Github, Mail, Menu, Phone } from "lucide-react";
+import { Github, Mail, Menu, Phone } from "lucide-react";
 import {
   Sheet,
   SheetContent,
