@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Blog } from "@/lib/getBlogData";
 
 interface BlogPost {
   title: string;
@@ -15,7 +16,8 @@ interface BlogPost {
   slug: string;
 }
 
-export default function BlogCard({ blog }: { blog: BlogPost }) {
+export default function BlogCard({ blog }: { blog: Blog }) {
+
   return (
     <Card className="overflow-hidden my-8">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -35,21 +37,27 @@ export default function BlogCard({ blog }: { blog: BlogPost }) {
             <div className="flex justify-between items-center mb-4">
               <Badge variant="secondary" className="text-sm">
                 <Calendar className="w-3 h-3 mr-1" />
-                {blog.date}
+                {new Intl.DateTimeFormat("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }).format(new Date(blog._createdAt))}
               </Badge>
               <div className="flex items-center text-sm text-muted-foreground">
                 <User className="w-4 h-4 mr-1" />
-                {blog.author}
+                {blog.author.name}
               </div>
             </div>
             <h3 className="text-2xl font-semibold tracking-tight mb-2">
               {blog.title}
             </h3>
-            <p className="text-muted-foreground mb-6">{blog.description}</p>
+            <p className="text-muted-foreground mb-6 line-clamp-3">
+              {blog.description}
+            </p>
           </div>
           <div className="flex justify-start">
             <Button variant="outline" asChild>
-              <Link href={`/blogs/${blog.slug}`}>
+              <Link href={`/blogs/${blog.slug.current}`}>
                 <MousePointerClick className="w-4 h-4 mr-2" />
                 Read More
               </Link>

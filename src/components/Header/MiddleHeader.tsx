@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import { InputWithButton } from "./InputWithButton";
+import {  SearchInput } from "./InputWithButton";
 import { ShoppingCart, User } from "lucide-react";
 import { ModeToggle } from "../theme-toggle";
 import Link from "next/link";
@@ -21,7 +21,7 @@ const MiddleHeader = () => {
           </Link>
         </div>
       </div>
-      <InputWithButton />
+      <SearchInput />
       <div className="hidden sm:flex gap-4 items-center">
         <Link href={"#"}>
           <User />

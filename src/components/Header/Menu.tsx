@@ -9,7 +9,8 @@ const Menu = () => {
           { href: "/", label: "Home" },
           { href: "/about", label: "About" },
           { href: "/contact", label: "Contact" },
-          { href: "/blogs", label: "Blog" },
+          { href: "/blogs", label: "Blogs" },
+          { href: "/authors", label: "Authors" },
         ].map((item) => (
           <li
             key={item.label}

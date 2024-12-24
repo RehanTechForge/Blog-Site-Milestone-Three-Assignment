@@ -156,7 +156,7 @@ export default function BlogPageClient({ initialBlogs }: BlogPageClientProps) {
                 {popularPosts.map((post, index) => (
                   <li key={index}>
                     <Link
-                      href={`/blogs/${post.slug}`}
+                      href={`/blogs/${post.slug.current}`}
                       className="text-sm hover:underline"
                     >
                       {post.title}

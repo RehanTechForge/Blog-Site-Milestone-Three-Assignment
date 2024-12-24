@@ -1,20 +1,21 @@
 import * as React from "react";
-import { getBlogData } from "@/lib/getBlogData";
 import CarouselSize from "./Carousel";
-export default function CategorySection() {
-  const blogs = getBlogData();
+import { client } from "@/sanity/lib/client";
 
-  // Track unique categories using a Set
-  const uniqueCategories = new Set();
+const getCategoryList = () => {
+  const query = `*[_type == "category"]{
+    title,
+    "slug": slug.current,
+    description,
+    image,
+  }`;
+  return client.fetch(query, {}, { cache: "no-store" });
+};
 
-  const filteredBlogs = blogs.filter((blog) => {
-    if (uniqueCategories.has(blog.category)) {
-      return false; // Skip if category already exists in the Set
-    } else {
-      uniqueCategories.add(blog.category);
-      return true; // Include the first instance of each category
-    }
-  });
+export default async function CategorySection() {
+  const categoryList = await getCategoryList();
 
-  return <CarouselSize filteredBlogs={filteredBlogs} />;
+  // console.log(categoryList);
+
+  return <CarouselSize categoryList={categoryList} />;
 }

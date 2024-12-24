@@ -8,28 +8,33 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import Link from "next/link";
 import Autoplay from "embla-carousel-autoplay";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { urlFor } from "@/sanity/lib/image";
 
 interface Blog {
   title: string;
-  date: string;
   description: string;
-  image: string;
+  image: { _type: "image"; asset: { _ref: string; _type: string } };
   slug: string;
-  author: string;
-  category: string;
-  categoryImage: string;
 }
 
 export default function CarouselSize({
-  filteredBlogs,
+  categoryList,
 }: {
-  filteredBlogs: Blog[];
+  categoryList: Blog[];
 }) {
   const plugin = useRef(Autoplay({ delay: 2000 }));
+  const [imagesLoaded, setImagesLoaded] = useState<{ [key: string]: boolean }>(
+    Object.fromEntries(categoryList.map((cat) => [cat.slug, false]))
+  );
+
+  const handleImageLoad = (slug: string) => {
+    setImagesLoaded((prev) => ({ ...prev, [slug]: true }));
+  };
 
   return (
     <Carousel
@@ -41,21 +46,42 @@ export default function CarouselSize({
       className="w-full max-w-full lg:max-w-[90%] mx-auto relative"
     >
       <CarouselContent>
-        {filteredBlogs.map((blog, index) => (
-          <CarouselItem key={index} className="sm:basis-1/2 lg:basis-1/3 pl-4">
+        {categoryList.map((cat, index) => (
+          <CarouselItem
+            key={cat.slug}
+            className="sm:basis-1/2 lg:basis-1/3 pl-4"
+          >
             <Card>
               <CardContent className="flex flex-col gap-4 aspect-square items-center p-6">
-                <Image
-                  src={`/${blog.categoryImage}`}
-                  alt={blog.slug}
-                  height={300}
-                  width={200}
-                  className="w-full h-[200px] sm:h-[250px] lg:h-[300px] object-cover rounded-lg"
-                />
-                <Link href={"#"}>
-                  <h2 className="text-lg sm:text-xl font-bold">
-                    {blog.category}
-                  </h2>
+                <Link href={`/category/${cat.slug}`} className="w-full">
+                  <div className="relative w-full h-[200px] sm:h-[250px] lg:h-[300px]">
+                    {!imagesLoaded[cat.slug] && (
+                      <Skeleton className="absolute inset-0 rounded-lg" />
+                    )}
+                    <Image
+                      src={
+                        cat.image?.asset
+                          ? urlFor(cat.image.asset).url()
+                          : "/fallback-image.jpg"
+                      }
+                      alt={cat.title || "Image"}
+                      fill
+                      quality={100}
+                      className={`object-cover rounded-lg transition-opacity duration-300 ${
+                        imagesLoaded[cat.slug] ? "opacity-100" : "opacity-0"
+                      }`}
+                      onLoad={() => handleImageLoad(cat.slug)}
+                    />
+                  </div>
+                </Link>
+                <Link href={`/category/${cat.slug}`} className="w-full">
+                  {!imagesLoaded[cat.slug] ? (
+                    <Skeleton className="h-6 w-3/4 mx-auto" />
+                  ) : (
+                    <h2 className="text-lg sm:text-xl font-bold text-center">
+                      {cat.title}
+                    </h2>
+                  )}
                 </Link>
               </CardContent>
             </Card>

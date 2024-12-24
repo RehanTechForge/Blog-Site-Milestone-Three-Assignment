@@ -8,6 +8,12 @@ const nextConfig = {
         port: "", // Leave empty for default port
         pathname: "/**", // Match all paths
       },
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+        port: "", // Leave empty for default port
+        pathname: "/**", // Match all
+      },
     ],
   },
 };

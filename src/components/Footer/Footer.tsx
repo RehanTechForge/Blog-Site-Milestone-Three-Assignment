@@ -12,18 +12,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { getBlogData } from "@/lib/getBlogData";
+import { client } from "@/sanity/lib/client";
 const contactDetails = [
   { name: "Our Story", path: "/about" },
   { name: "Contact Us", path: "/contact" },
   { name: "Privacy Policy", path: "/" },
   { name: "Terms & Conditions", path: "/" },
 ];
-export default function Footer() {
-  const blogs = getBlogData();
+export default async function Footer() {
+  const query = `*[_type == "category"]{
+    title,
+    slug
+  }`;
 
-  // Extract categories and remove duplicates
-  const uniqueCategories = [...new Set(blogs.map((blog) => blog.category))];
+  const categories: {
+    title: string;
+    slug: { current: string; _type: string };
+  }[] = await client.fetch(query);
 
   return (
     <footer className="bg-primary text-primary-foreground py-12">
@@ -36,11 +41,11 @@ export default function Footer() {
             <ul className="space-y-2">
               <li className="flex items-center">
                 <Phone className="w-4 h-4 mr-2" />
-                <span>+1 (555) 123-4567</span>
+                <span>+92 (318) 496-6323</span>
               </li>
               <li className="flex items-center">
                 <Mail className="w-4 h-4 mr-2" />
-                <span>support@beautyblog.com</span>
+                <span>muhammadrehan@gmail.com</span>
               </li>
               <li className="flex items-center">
                 <Clock className="w-4 h-4 mr-2" />
@@ -57,13 +62,16 @@ export default function Footer() {
               Categories
             </h2>
             <ul className="space-y-2">
-              {uniqueCategories.map((item, index) => (
+              {categories.map((item, index) => (
                 <li
                   key={index}
                   className="transition-transform hover:translate-x-1"
                 >
-                  <Link href={"/"} className="hover:underline">
-                    {item}
+                  <Link
+                    href={`/category/${item.slug.current}`}
+                    className="hover:underline"
+                  >
+                    {item.title}
                   </Link>
                 </li>
               ))}
