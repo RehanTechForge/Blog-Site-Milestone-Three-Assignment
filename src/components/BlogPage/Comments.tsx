@@ -7,36 +7,53 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send, Loader2 } from "lucide-react";
 import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Alert, AlertDescription } from "../ui/alert";
 
-// Define a type for the comment
 interface Comment {
-  author: string;
-  text: string;
+  _id: string;
+  commentAuthor: string;
+  commentText: string;
 }
 
-// Define the props type for the CommentsSection component
 interface CommentsSectionProps {
-  postSlug: string;
+  postId: string;
 }
 
-const CommentsSection: React.FC<CommentsSectionProps> = ({ postSlug }) => {
+const CommentsSection: React.FC<CommentsSectionProps> = ({ postId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState<string>("");
   const [commentAuthor, setCommentAuthor] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load comments from localStorage for the specific postSlug
-    const savedComments = localStorage.getItem(`comments_${postSlug}`);
-    if (savedComments) {
-      setComments(JSON.parse(savedComments));
+    fetchComments();
+  }, [postId]);
+
+  const fetchComments = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/comments?postId=${postId}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch comments");
+      }
+      const data = await res.json();
+      setComments(data.comments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      setError("Failed to load comments. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
-  }, [postSlug]);
+  };
 
   const handleCommentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setCommentText(e.target.value);
@@ -46,21 +63,42 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postSlug }) => {
     setCommentAuthor(e.target.value);
   };
 
-  const handleCommentSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleCommentSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (commentText.trim() && commentAuthor.trim()) {
-      const newComment: Comment = { author: commentAuthor, text: commentText };
-      const updatedComments = [...comments, newComment];
 
-      // Save to localStorage for the specific postSlug
-      localStorage.setItem(
-        `comments_${postSlug}`,
-        JSON.stringify(updatedComments)
-      );
+    if (!commentText.trim() || !commentAuthor.trim()) {
+      alert("Both fields are required.");
+      return;
+    }
 
-      setComments(updatedComments);
-      setCommentText("");
-      setCommentAuthor("");
+    setIsSubmitting(true);
+    setError(null);
+
+    const newComment = {
+      commentAuthor,
+      commentText,
+      post: { _type: "reference", _ref: postId },
+    };
+
+    try {
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newComment),
+      });
+
+      if (res.ok) {
+        await fetchComments();
+        setCommentText("");
+        setCommentAuthor("");
+      } else {
+        throw new Error("Failed to submit comment.");
+      }
+    } catch (error) {
+      console.error("Error submitting comment:", error);
+      setError("Failed to submit comment. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,38 +118,60 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postSlug }) => {
             value={commentAuthor}
             onChange={handleAuthorChange}
             placeholder="Your Name"
+            disabled={isSubmitting}
           />
           <Textarea
             value={commentText}
             onChange={handleCommentChange}
             placeholder="Leave a comment..."
             className="min-h-[100px]"
+            disabled={isSubmitting}
           />
-          <Button type="submit" className="w-full">
-            <Send className="mr-2 h-4 w-4" /> Submit Comment
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="mr-2 h-4 w-4" />
+            )}
+            {isSubmitting ? "Submitting..." : "Submit Comment"}
           </Button>
         </form>
       </CardContent>
       <CardFooter className="flex flex-col">
         <Separator className="my-4" />
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <div className="space-y-4 w-full">
-          {comments.map((comment, index) => (
-            <Card key={index} className="w-full">
-              <CardHeader>
-                <div className="flex items-center space-x-4">
-                  <Avatar>
-                    <AvatarFallback>
-                      {comment.author[0].toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <CardTitle>{comment.author}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{comment.text}</p>
-              </CardContent>
-            </Card>
-          ))}
+          {isLoading ? (
+            <div className="flex justify-center items-center h-24">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : comments.length > 0 ? (
+            comments.map((comment) => (
+              <Card key={comment._id} className="w-full">
+                <CardHeader>
+                  <div className="flex items-center space-x-4">
+                    <Avatar>
+                      <AvatarFallback>
+                        {comment.commentAuthor[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <CardTitle>{comment.commentAuthor}</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{comment.commentText}</p>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground">
+              No comments yet. Be the first to comment!
+            </p>
+          )}
         </div>
       </CardFooter>
     </Card>

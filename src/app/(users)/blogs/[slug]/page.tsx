@@ -1,5 +1,5 @@
 // export const revalidate = 3600;
-import { getBlogData } from "@/lib/getBlogData"; // Assuming this fetches the blog data from Sanity
+import { fetchPostData, getBlogData } from "@/lib/getBlogData"; // Assuming this fetches the blog data from Sanity
 import { Facebook, Instagram, Twitter } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +13,8 @@ interface ParamsInterFace {
 }
 
 const Page = async ({ params }: { params: ParamsInterFace }) => {
+  const { slug } = params;
+  const post = await fetchPostData(slug);
   // Fetch all blog data from Sanity
   const blogs = await getBlogData();
 
@@ -131,7 +133,9 @@ const Page = async ({ params }: { params: ParamsInterFace }) => {
         </section>
       )}
 
-      <CommentsSection postSlug={blog.slug.current} />
+      <CommentsSection
+        postId={post._id}
+      />
     </section>
   );
 };

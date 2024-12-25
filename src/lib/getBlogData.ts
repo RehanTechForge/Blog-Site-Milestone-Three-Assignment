@@ -161,3 +161,24 @@ export async function getAuthorBySlug(slug: string): Promise<Author | null> {
     { slug }
   );
 }
+const query = groq`
+  *[_type == "post" && slug.current == $slug][0] {
+    title,
+    _id,
+    body,
+    "comments": *[_type == "comment" && post._ref == ^._id] {
+      name,
+      content,
+      createdAt
+    }
+  }
+`;
+export async function fetchPostData(
+  // @ts-expect-error: The following line causes an error due to missing types in the library
+  slug
+) {
+  const post = await client.fetch(query, { slug });
+  // console.log("dsadasda", post);
+
+  return post;
+}
