@@ -129,7 +129,7 @@ export default function ModernNewsSection() {
         ))}
       </Tabs>
 
-      <div className="flex justify-between items-center">
+      {/* <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <TrendingUp className="w-5 h-5 text-pink-500" />
           <span className="font-semibold">Trending Topics:</span>
@@ -156,7 +156,39 @@ export default function ModernNewsSection() {
           <BookOpen className="w-4 h-4 mr-2" />
           <Link href={"/blogs"}>View All Beauty Tips</Link>
         </Button>
-      </div>
+      </div> */}
+      <div className="flex flex-wrap sm:flex-col sm:items-start justify-between items-center gap-4">
+  <div className="flex flex-wrap items-center space-x-2 sm:space-x-0 sm:space-y-2">
+    <TrendingUp className="w-5 h-5 text-pink-500" />
+    <span className="font-semibold">Trending Topics:</span>
+    <Badge
+      variant="outline"
+      className="bg-pink-100 text-pink-800 border-pink-300"
+    >
+      Fall Makeup Trends
+    </Badge>
+    <Badge
+      variant="outline"
+      className="bg-purple-100 text-purple-800 border-purple-300"
+    >
+      Skincare Essentials
+    </Badge>
+    <Badge
+      variant="outline"
+      className="bg-orange-100 text-orange-800 border-orange-300"
+    >
+      Celebrity Looks
+    </Badge>
+  </div>
+  <Button
+    variant="link"
+    className="text-primary sm:ml-0 sm:mt-2 sm:self-start"
+  >
+    <BookOpen className="w-4 h-4 mr-2" />
+    <Link href={"/blogs"}>View All Beauty Tips</Link>
+  </Button>
+</div>
+
     </section>
   );
 }
